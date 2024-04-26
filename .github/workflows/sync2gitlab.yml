@@ -1,0 +1,29 @@
+# Workflow for mirroring/syncing with remote GitLab repo
+name: GitlabSync
+
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  delete:
+    branches: [ "main" ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: DoSync
+        uses: wangchucheng/git-repo-sync@v0.1.0
+        with:
+          # Such as https://github.com/wangchucheng/git-repo-sync.git
+          target-url: ${{ secrets.TARGET_URL }}
+          # Such as wangchucheng
+          target-username: ${{ secrets.TARGET_USERNAME }}
+          # You can store token in your project's 'Setting > Secrets' and reference the name here. Such as ${{ secrets.ACCESS\_TOKEN }}
+          target-token: ${{ secrets.TARGET_TOKEN }}
