@@ -1,0 +1,12 @@
+{
+  "customdata": {
+    "user_mail": "nuzhdin.vicx@yandex.ru        | <SET_YOUR_OS_USER_EMAIL>",
+    "user_name": "devops                        | <SET_YOUR_OS_USER>",
+    "user_password": "$6$rounds=4096$g..        | <SET_YOUR_OS_USER_MKPASSWD_ENCRYPTED_PASSWORD>",
+    "user_pubkey": "ssh-ed25519 AAAA..          | <SET_YOUR_OS_USER_SSH_PUBLIC_KEY>",
+    "user_ownersip": "devops:devops             | <SET_YOUR_OS_USER>:<YOUR_OS_USER_GROUP>",
+    "github_user_name": "VictorNuzhdin          | <SET_YOUR_GITHUB_LOGIN>",
+    "github_user_mail": "nuzhdin.vicx@yandex.ru | <SET_YOUR_GITHUB_EMAIL>",
+    "github_user_token": "ghp_QoD..             | <SET_YOUR_GITHUB_PERSONAL_ACCESS_TOKEN>"
+  }
+}

@@ -1,0 +1,9 @@
+##..Sets Cloud access IAM token generated with "Yandex Cloud CLI" (12 hours lifespan)
+##  $ yc iam create-token
+##  $ export TF_VAR_yc_token=$(yc iam create-token) && echo $TF_VAR_yc_token
+#
+yc_token = "t1.9eue..   | <SET_YOUR_YANDEX_CLOUD_IAM_TOKEN>"
+
+##..Sets Cloud base IDs (cloud and folder id)
+yc_cloud_id = "b1g0u..  | <SET_YOUR_YANDEX_CLOUD_CLOUD_ID>"
+yc_folder_id = "b1gq..  | <SET_YOUR_YANDEX_CLOUD_FOLDER_ID>"
