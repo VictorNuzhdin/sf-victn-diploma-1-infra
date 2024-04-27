@@ -9,7 +9,6 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 * [GitHub | sf-victn-diploma-1-infra](https://github.com/VictorNuzhdin/sf-victn-diploma-1-infra)
 * [GitHub | sf-victn-diploma-2-cicd](https://github.com/VictorNuzhdin/sf-victn-diploma-2-cicd)
 * [GitHub | sf-victn-diploma-3-mon](https://github.com/VictorNuzhdin/sf-victn-diploma-3-mon)
-
 * [GitLab | sf-victn-diploma-0-app1](https://gitlab.com/VictorNuzhdin/sf-victn-diploma-0-app1)
 * [GitLab | sf-victn-diploma-1-infra](https://gitlab.com/VictorNuzhdin/sf-victn-diploma-1-infra)
 * [GitLab | sf-victn-diploma-2-cicd](https://gitlab.com/VictorNuzhdin/sf-victn-diploma-2-cicd)
@@ -221,17 +220,16 @@ $ ./project_tfUndeploy.sh
 ### =Screenshots : : Скриншоты (новые в начале)
 
 <!--START_SCREENS_10-->
-<details open><summary><h3><b>Состояние инфраструктуры на Стадии 1</b></h3></summary>
-
-1.0: Развернутые в Yandex.Cloud облачные ресурсы <br>
-*k8s кластер еще не инициалирован, система мониторинга на "srv" не настроена <br>
-*результат выполнения "terraform apply" <br>
-*созданные в Yandex.Cloud ресурсы (сеть, подсеть, инстансы вм) <br>
-*результат подключения по ssh и выполнения тестовых команд на хосте "master" (k8s-master-0) <br>
-*результат подключения по ssh и выполнения тестовых команд на хосте "app"    (k8s-worker-0) <br>
-*результат подключения по ssh и выполнения тестовых команд на хосте "srv"    (k8s-monitor) <br>
-*демострация домашней старницы https сайта сервера "srv" (k8s-monitor) <br>
-*информация о ssl сертификате https сайта сервера "srv" (k8s-monitor) <br>
+<details open><summary><h3><b>Состояние инфраструктуры на Стадии 1 : : Базовые облачные ресурсы</b></h3></summary>
+* k8s кластер еще не инициалирован, система мониторинга на "srv" не настроена <br>
+* результат выполнения "terraform apply" <br>
+* созданные в Yandex.Cloud ресурсы (сеть, подсеть, инстансы вм) <br>
+* результат подключения по ssh и выполнения тестовых команд на хосте "master" (k8s-master-0) <br>
+* результат подключения по ssh и выполнения тестовых команд на хосте "app"    (k8s-worker-0) <br>
+* результат подключения по ssh и выполнения тестовых команд на хосте "srv"    (k8s-monitor) <br>
+* демострация домашней старницы https сайта сервера "srv" (k8s-monitor) <br>
+* информация о ssl сертификате https сайта сервера "srv" (k8s-monitor) <br>
+<br>
 
 ![screen](_screens/k8s-cluster__sprint1-infra__stage01__01_terraform-apply.png?raw=true)
 <br>
