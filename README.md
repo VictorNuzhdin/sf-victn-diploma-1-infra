@@ -85,14 +85,24 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 #..устанавливаем инструмент для работы с Яндекс Облаком "Yandex Cloud CLI" (yc)
 #  https://yandex.cloud/ru/docs/cli/quickstart
 #  и настраиваем свой профиль с привязкой к своему облаку,
-#  после чего выполняем команду генерации IAM токена авторизации,
-#  который нужно добавить в конфигурацию секретов "terrafrom/protected/protected.tfvars" в поле "yc_token".
+#  после чего выполняем команду генерации IAM токена авторизации
 #  если не выполнить этот шаг, то при дальнейшем примененим Terrafrom конфигурации будет ошибка авторизации
 
 $ yc iam create-token
 
         t1.9eue..AROAA..332_символа
 
+#..выполняем скрипт который считает текущий IAM токен из профиля "Yandex CLI"
+#  и подставит его в конфигурацию секретов "terrafrom/protected/protected.tfvars" в поле "yc_token"
+#  а также обновит поле "yc_token_ts" со штампом времени создания токена (для удобства контроля его валидности по времени)
+#  *также можно выполнить этот шаг вручную без скрипта
+
+$ ./project_ycTokenChange.sh
+
+$ cat terraform/protected/protected.tfvars | grep yc_token
+
+        yc_token = "t1.9eue..AROAA"
+        yc_token_ts = "20240427_134012"
 
 #..выполняем первичную инициализацию Terrafrom проекта
 #  *этот шаг выполняется опционально, т.к в проекте после клонирования уже будет каталог terraform/.terraform
