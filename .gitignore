@@ -1,5 +1,6 @@
 terraform/terraform.tfstate
 terraform/terraform.tfstate.backup
+terraform/terraform_tfstate*
 terraform/examples
 terraform/configs/doesnt_work
 terraform/configs/cloud-init.yaml

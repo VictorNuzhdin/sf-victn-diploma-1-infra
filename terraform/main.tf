@@ -30,7 +30,7 @@ module "monitor" {
   monitor_vm_subnet_id             = module.network.k8s_subnet1_id      # prod  version: get Subnet ID from "networks" Module and send to "nonitor" Module
   #
 
-  # GATEWAY
+  # MONITOR/ING HOST
   monitor_vm_name                  = local.vm_monitor_name              # "k8s-monitor"
   monitor_vm_hostname              = local.vm_monitor_hostname          # "srv"
   #
