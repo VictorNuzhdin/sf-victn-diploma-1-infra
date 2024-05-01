@@ -12,7 +12,9 @@ SECRETS_DIR='protected'
 test -e $CONFIG_DIR/cloud-init.yaml && echo "file exists" || touch $CONFIG_DIR/cloud-init.yaml
 
 ##..destroy cloud resources
-clear; terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" --auto-approve
+clear
+terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" --auto-approve
+
 
 ##..remove cloud-init config
 rm -f $CONFIG_DIR/cloud-init.yaml

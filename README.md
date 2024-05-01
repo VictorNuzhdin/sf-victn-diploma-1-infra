@@ -63,6 +63,7 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 ```
 #project_status :: IN_PROGRESS
 
+2024-05-01_2037 :: stage02: DONE: IaC конфигурация дополнена - создается Kubernetes Кластер из x2 Нод
 2024-04-27_1613 :: stage01: DONE: реализована базовая IaC конфигурация создающая необходимые ВМ в облаке Yandex.Cloud
 2024-04-26_1353 :: stage00: DONE: создан пустой репозиторий
 
@@ -72,8 +73,193 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 
 ### =Changes Details : : Описание изменений (новые в начале)
 
+<!--START_DETAILS_20-->
+<details open><summary><h3><b>Стадия #2: Создание Kubernetes Кластера</b></h3></summary>
+
+```bash
+
+#..инструкции по начальному развертыванию см. вразделе "Стадия #1: Развертывание базовой облачной Инфраструктуры"
+#  в даном разделе будут приведены инструкции по проверке Кластера Kubernetes
+#  на данной Стадии описание начинается с момента применения Terraform конфигурации
+
+#..применяем Terraform конфигурацию с помощью шелл-скрипта
+#  *ждем пока в результате не появится список ip-адресов созданных ВМ
+#  *время развертывания модет доходить до 15 минут
+#  *если в процессе развертывания будут ошибки и кластер не развернется, 
+#   то необходимо учичтожить ресурсы и повторить развертывания заново
+#   т.к в некоторых случаях изза проблем в сети могут наблюдаться сбои 
+#   при установке пакетов необходимых для запуска и работы кластера
+
+$ ./project_tfDeployAll.sh
+    ..
+        Apply complete! Resources: 9 added, 0 changed, 0 destroyed.
+
+        Outputs:
+
+        k8s_masters_ip_external = [
+          [
+            "158.160.64.109",
+          ],
+        ]
+        k8s_workers_ip_external = [
+          [
+            "158.160.21.231",
+          ],
+        ]
+        monitor_external_endpoint = "https://srv.dotspace.ru"
+        monitor_external_ip = "84.201.136.38"
+
+
+#..подключаемся к Manager/ControlPlane Ноду по SSH и проверяем состояние инструментов и Кластера
+#  *подключение произовдится с помощью специально созданного шелл-скриппта
+#   при этом текущие публичные ip адреса будут автоматически считываться из Terraform State
+#  *на Master ноде проверяем:
+#   - состояние сервиса "Containerd"
+#   - версии установленных инструментов Kubernetes Кластера
+#   - состояние Kubernetes Кластера и наличие ноды "app" в списке Нод
+
+$ ./project_ssh2master0.sh
+		
+    $ hostname; curl -s 2ip.ru; hostname -I; whoami; pwd; date +'%Y-%m-%d %H:%M:%S %Z'
+
+        master0
+        158.160.64.109
+        10.0.10.10 192.168.84.192
+        ubuntu
+        /home/ubuntu
+        2024-05-01 19:28:37 +06
+
+    $ systemctl status containerd | grep Active | awk '{$1=$1;print}'; \
+		  systemctl status containerd | grep 'msg="containerd'
+
+        Active: active (running) since Sun 2024-04-28 13:26:59 +06; 59s ago
+        Apr 28 13:26:59 master0 containerd[3530]: time="2024-04-28T13:26:59.413446953+06:00" level=info msg="containerd successfully booted in 0.032209s"
+
+    $ echo "Kubeadm v$(kubeadm version | awk '{print $5}' | sed 's/\GitVersion:"v//g' | sed 's/\",//g')"
+
+        Kubeadm v1.30.0
+
+    $ kubelet --version
+
+        Kubernetes v1.30.0
+
+    $ kubectl version
+
+        Client Version: v1.30.0
+        Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+        Server Version: v1.30.0
+
+    $ kubectl cluster-info
+
+        Kubernetes control plane is running at https://10.0.10.10:6443
+        CoreDNS is running at https://10.0.10.10:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+        To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+
+    $ kubectl get nodes -o wide
+
+        NAME      STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION       CONTAINER-RUNTIME
+        app0      Ready    worker          19m   v1.30.0   10.0.10.20    <none>        Ubuntu 22.04.4 LTS   5.15.0-105-generic   containerd://1.6.31
+        master0   Ready    control-plane   24m   v1.30.0   10.0.10.10    <none>        Ubuntu 22.04.4 LTS   5.15.0-105-generic   containerd://1.6.31
+
+#   (+) в данном случае видно что Кластер развернут успешно
+#       добавлена нода "app0"
+#       ей присвоена роль "worker"
+#       а также создана доп. метка/label в метаданных указывающая на роль "worker"
+
+    $ kubectl get nodes --selector='node-role.kubernetes.io/worker'
+    $ kubectl get nodes -l role=worker
+
+        NAME   STATUS   ROLES    AGE   VERSION
+        app0   Ready    worker   23m   v1.30.0
+
+#   (i) селекторы в Kubernetes
+#       позволяют выбирать объекты используя их метки в метаданных
+
+#   (i) если команда "kubectl cluster-info" выдает ошибку подключения к Кластеру
+#       это означает что в процессе развертывания конфигурации были ошибки при установке пакетов,
+#       и необходимо повторно выполнить уничтожение и создание "master" и "worker" Нод
+#       сделать это можно вручную, либо с помощью шелл скриптов
+#       $ ./project_tfUndeployKuberWorkers.sh
+#       $ ./project_tfUndeployKuberMaster.sh
+#       $ ./project_tfDeployKuberMaster.sh
+#       $ ./project_tfDeployKuberWorkers.sh
+#
+
+#..также можно проверить наличие необходимых компонентов на Worker Ноде,
+#  но эта проверка опциональная, т.к факт того что Нода добавилась к Кластеру и видна на Мастер Ноде
+#  говорит о том что все компоненты установлены корректно
+
+$ ./project_ssh2worker0.sh
+
+    $ hostname; curl -s 2ip.ru; hostname -I; whoami; pwd;  date +'%Y-%m-%d %H:%M:%S %Z'
+
+        app0
+        158.160.21.231
+        10.0.10.20 192.168.130.64
+        ubuntu
+        /home/ubuntu
+        2024-05-01 20:10:56 +06
+
+    $ systemctl status containerd | grep Active | awk '{$1=$1;print}'; \
+		  systemctl status containerd | grep 'msg="containerd'
+
+        Active: active (running) since Sun 2024-05-01 19:24:03 +06; 47min ago
+        May 01 19:24:03 app0 containerd[3530]: time="2024-05-01T19:24:03.413446953+06:00" level=info msg="containerd successfully booted in 0.032209s"
+
+    $ echo "Kubeadm v$(kubeadm version | awk '{print $5}' | sed 's/\GitVersion:"v//g' | sed 's/\",//g')"
+
+        Kubeadm v1.30.0
+
+    $ kubelet --version
+
+        Kubernetes v1.30.0
+
+    $ kubectl version
+
+        Client Version: v1.30.0
+        Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3
+        The connection to the server localhost:8080 was refused - did you specify the right host or port?
+   
+#   (i) ошибка подключения к серверу в команде 
+#       не является ошибкой как таковой, т.к некоторые команды полноценно работают только на Master / Control Plane Ноде,
+#       а в данном случае команда выполняется на Worker Ноде
+
+
+#..проверка работы сервера мониторинга "srv" на данной Стадии не требуется
+#  однако он должен быть доступен по http URL с любого хоста с выходом в интернет
+#  проверить можно с помощью веб-браузера
+#  должна открыться домашняя страница с содержимым показанным ниже
+#  ссылки на ресурсы работать не будут т.к это демонстрационная страница
+
+chrome: https://srv.dotspace.ru/
+
+        Welcome to [srv.dotspace.ru] (Monitoring and CI/CD tasks)
+        ---
+        *quick_linx
+        0. https://dotspace.ru
+           *root domain
+        1. Example HelloEmptyWorld Webapp
+           *internal dockerized service #1
+
+# (i) на этом Стадия #2 настройки Kubernetes Кластера завершена
+#     *созданные на предыдущей Стадии ВМ "k8s-master-0" (master) и "k8s-worker-0" (app)
+#      объединены в один Kubernetes Кластер, при этом
+#      ВМ "k8s-master0" является управляющей "Control Plane" Нодой, а
+#      ВМ "k8s-worker0" является управляемой "Worker" Нодой
+#
+# (i) на следующей Стадии будет производиться подготовка контейнеризированного Python веб-приложения
+#     для развертывания в созданном Kubernetes Кластере
+
+```
+
+</details>
+<!--END_DETAILS_20-->
+<br><br>
+
+
 <!--START_DETAILS_10-->
-<details open><summary><h3><b>Стадия1: Развертывание базовой облачной Инфраструктуры</b></h3></summary>
+<details><summary><h3><b>Стадия #1: Развертывание базовой облачной Инфраструктуры</b></h3></summary>
 
 ```bash
 
@@ -208,13 +394,13 @@ $ ./project_tfUndeploy.sh
 
         Destroy complete! Resources: 8 destroyed.
 
-# (i) на этом, Этап 1 настройки Kubernetes Кластера завершен
+# (i) на этом Стадия #1 настройки Kubernetes Кластера завершена
 #     *созданы необходимые виртуальные машины в облаке
 #     *проверено ssh подключение к ним
 #     *проверен публичный доступ по к серверу мониторинга "srv" по URL:
 #      https://srv.dotspace.ru
 
-# (i) на следующем этапе будет производиться непосредственно создание Kubernetes Кластера,
+# (i) на следующей Стадии будет производиться непосредственно создание Kubernetes Кластера,
 #     а именно объединение ВМ "master" и "app" в Кластер,
 #     где ВМ "master" (k8s-master-0) будет иметь Роль "Control Plane" Ноды,
 #     а ВМ "app" (k8s-worker-0) будет иметь Роль "Worker" Ноды
@@ -223,15 +409,30 @@ $ ./project_tfUndeploy.sh
 ```
 
 </details>
-<!--END_DETAILS_10-->
+<!--END_DETAILS_30-->
 <br><br>
 
 
 ### =Screenshots : : Скриншоты (новые в начале)
 
+<!--START_SCREENS_20-->
+<details open><summary><h3><b>Состояние инфраструктуры на Этапе #2 : : Kubernetes Кластер</b></h3></summary>
+* k8s кластер инициалирован на хосте "master0", добавлена x1 worker нода "app0" <br>
+* система мониторинга на "srv" еще не настроена <br>
+<br>
+
+![screen](_screens/k8s-cluster__sprint1-infra__stage02__01_vm-master-master0-console-check.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint1-infra__stage02__02_vm-app-worker0-console-check.png?raw=true)
+
+</details>
+<!--END_SCREENS_20-->
+<br>
+
 <!--START_SCREENS_10-->
-<details open><summary><h3><b>Состояние инфраструктуры на Стадии 1 : : Базовые облачные ресурсы</b></h3></summary>
-* k8s кластер еще не инициалирован, система мониторинга на "srv" не настроена <br>
+<details><summary><h3><b>Состояние инфраструктуры на Этапе #1 : : Базовые облачные ресурсы</b></h3></summary>
+* k8s кластер еще не инициалирован <br>
+* система мониторинга на "srv" еще не настроена <br>
 * результат выполнения "terraform apply" <br>
 * созданные в Yandex.Cloud ресурсы (сеть, подсеть, инстансы вм) <br>
 * результат подключения по ssh и выполнения тестовых команд на хосте "master" (k8s-master-0) <br>

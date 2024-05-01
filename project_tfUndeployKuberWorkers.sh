@@ -27,7 +27,7 @@ terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" -target="module.clus
 #
 
 ##..FIX
-##  *manually remove unused workers outputs from Terraform State
+##  *manually remove unused outputs from Terraform State
 ##   https://stackoverflow.com/questions/75161337/delete-terraform-output-from-state
 ##   https://stackoverflow.com/questions/47023795/removing-a-key-from-parent-object-with-jq
 ##   - это очень плохое решение удалять чтото в Terraform State напрямую
@@ -47,3 +47,7 @@ terraform validate
 echo ""
 echo "--WORKER_OUTPUT"
 echo "\"k8s_worker0_external_ipv4_address\": \"$(cat terraform.tfstate | jq -r -c '.resources[] | select ( .name == "k8s-worker")'.instances[0].attributes.network_interface[0].nat_ip_address)\""
+
+
+##..destroy (manual))
+#cd terraform; terraform destroy -var-file="protected/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-worker" -target="module.cluster.null_resource.k8s-workers-provisioner" -target="output.k8s_workers_ip_external" --auto-approve; cd ..

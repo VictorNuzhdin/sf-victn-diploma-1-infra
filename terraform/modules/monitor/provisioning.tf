@@ -1,5 +1,5 @@
 ##--ON_MONITOR: PREPARE HOST
-resource "null_resource" "monitor-provisioner-step00" {
+resource "null_resource" "monitor-provisioner" {
   # 
   depends_on = [yandex_compute_instance.monitor]
   #

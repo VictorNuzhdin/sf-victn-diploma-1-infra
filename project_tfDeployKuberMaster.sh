@@ -11,9 +11,14 @@ clear
 
 ##..create Kubernetes Master/ControlPlane NODEs only
 #
+#terraform validate
+#terraform plan -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="output.k8s_masters_ip_external"
+#terraform apply -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="output.k8s_masters_ip_external" --auto-approve
+
+#..join_tests
 terraform validate
-terraform plan -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="output.k8s_masters_ip_external"
-terraform apply -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="output.k8s_masters_ip_external" --auto-approve
+terraform plan  -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="module.cluster.null_resource.k8s-masters-make-join-provisioner" -target="output.k8s_masters_ip_external"
+terraform apply -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="module.cluster.null_resource.k8s-masters-make-join-provisioner" -target="output.k8s_masters_ip_external" --auto-approve
 
 
 ##..OUTPUTS_CHECKS

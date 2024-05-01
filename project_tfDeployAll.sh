@@ -43,8 +43,10 @@ done
 
 
 ##..deploy terraform configuration/plan
-#clear; terraform validate; terraform plan; terraform apply -var-file="$SECRETS_DIR/protected.tfvars" --auto-approve
-clear; terraform validate; terraform plan -var-file="$SECRETS_DIR/protected.tfvars"; terraform apply -var-file="$SECRETS_DIR/protected.tfvars" --auto-approve
+clear
+terraform validate
+terraform plan -var-file="$SECRETS_DIR/protected.tfvars"
+terraform apply -var-file="$SECRETS_DIR/protected.tfvars" --auto-approve
 
 
 ##..removes cloud-init config after terraform plan applied

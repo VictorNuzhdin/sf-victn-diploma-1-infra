@@ -7,16 +7,8 @@ SSH_USER="ubuntu"
 SSH_PORT="22"
 
 
-##..tests
-# ssh ubuntu@130.193.41.24 -p 22 -i ~/.ssh/id_ed25519
-# ssh ubuntu@130.193.41.24 -o StrictHostKeyChecking=no -p 22 -i ~/.ssh/id_ed25519
-#
-# echo $(jq '.outputs' terraform.tfstate)                                         # { "k8s_workers_ip_external": { "value": [ [ "51.250.30.49" ] ], "type": [ "tuple", [ [ "tuple", [ "string" ] ] ] ] }, "k8s_workers_ip_external": { "value": [ [ "130.193.41.24", "84.252.136.128" ] ], "type": [ "tuple", [ [ "tuple", [ "string", "string" ] ] ] ] } }
-# echo $(jq -r '.outputs.k8s_workers_ip_external' terraform.tfstate)              # { "value": [ [ "130.193.41.24", "84.252.136.128" ] ], "type": [ "tuple", [ [ "tuple", [ "string", "string" ] ] ] ] }
-# echo $(jq -r '.outputs.k8s_workers_ip_external.value[][0]' terraform.tfstate)   # 130.193.41.24
-#
+##..getting 1st Kubernetes Master host current public IPv4 address from Terraform State
+SSH_HOST="$(cat terraform.tfstate | jq -r -c '.resources[] | select ( .name == "k8s-worker")'.instances[0].attributes.network_interface[0].nat_ip_address)"
 
-##..finally
-SSH_HOST="$(jq -r '.outputs.k8s_workers_ip_external.value[][0]' terraform.tfstate)"
-
+##..make ssh connection to K8S Master host
 ssh -o StrictHostKeyChecking=no -p $SSH_PORT $SSH_USER@$SSH_HOST

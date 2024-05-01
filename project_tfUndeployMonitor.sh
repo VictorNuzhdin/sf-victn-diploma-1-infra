@@ -10,15 +10,10 @@ SECRETS_DIR='protected'
 clear
 
 
-##..destroy Kubernetes Master NODEs only
+##..destroy Monitoring Host only
 #
-#terraform validate
-#terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="output.k8s_masters_ip_external" --auto-approve
-#
-#..join_tests_undeploy
 terraform validate
-terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="module.cluster.null_resource.k8s-masters-make-join-provisioner" -target="output.k8s_masters_ip_external" --auto-approve
-
+terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" -target="module.monitor.yandex_compute_instance.monitor" -target="module.monitor.null_resource.monitor-provisioner" -target="output.monitor_wan_ip" -target="output.monitor_endpoint" --auto-approve
 
 ##..BUG:
 ##  *terraform doesnt remove some outputs from .tfstate after resources was destroyed with -target flag
@@ -39,7 +34,7 @@ terraform destroy -var-file="$SECRETS_DIR/protected.tfvars" -target="module.clus
 ##     т.к возможна ситуация когда "terrafrom destroy" вывалится в ошибку, а команды ниже удалять то что еще не нужно удалять
 #
 cp terraform.tfstate terraform_tfstate_$(date +'%Y%m%d_%H%M%S')
-jq 'del(.outputs.k8s_masters_ip_external)' terraform.tfstate | tee terraform.tfstate_tmp
+jq 'del(.outputs.monitor_external_ip)' terraform.tfstate | tee terraform.tfstate_tmp
 rm -f terraform.tfstate
 cp terraform.tfstate_tmp terraform.tfstate
 rm -f terraform.tfstate_tmp
@@ -48,11 +43,7 @@ rm -f terraform.tfstate_tmp
 terraform validate
 
 
-##..MASTER0_OUTPUT_CHECKS :: must be empty
+##..MONITOR_OUTPUT_CHECKS :: must be empty
 echo ""
-echo "--MASTER_OUTPUT"
-echo "\"k8s_master0_external_ipv4_address\": \"$(cat terraform.tfstate | jq -r -c '.resources[] | select ( .name == "k8s-master")'.instances[0].attributes.network_interface[0].nat_ip_address)\""
-
-
-##..destroy (manual))
-#cd terraform; terraform destroy -var-file="protected/protected.tfvars" -target="module.cluster.yandex_compute_instance.k8s-master" -target="module.cluster.null_resource.k8s-masters-provisioner" -target="output.k8s_masters_ip_external" --auto-approve; cd ..
+echo "--MONITOR_OUTPUT"
+echo "\"k8s_monitor_external_ipv4_address\": \"$(cat terraform.tfstate | jq -r -c '.resources[] | select ( .name == "k8s-monitor")'.instances[0].attributes.network_interface[0].nat_ip_address)\""
