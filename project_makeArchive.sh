@@ -1,6 +1,7 @@
 #!/bin/bash
 
-PROJECT_DIR="sf-d0241-k8s-minikube"
+#PROJECT_DIR="sf-victn-diploma-1-infra"
+PROJECT_DIR=${PWD##*/}
 
 cd ..
 
