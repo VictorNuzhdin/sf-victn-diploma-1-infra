@@ -40,7 +40,7 @@ locals {
   vm_monitor_isMayBeDisabled   = true                    # true|false
   vm_monitor_isConsoleEnabled  = 0                       # 0:disabled|1:enabled
   #
-  vm_monitor_boot_image_id     = "fd82vchjp2kdjiuam29k"  # OS Image id (family_id: ubuntu-2204-lts, last_update: 2024-04-22, https://cloud.yandex.ru/ru/marketplace/products/yc/ubuntu-22-04-lts)
+  vm_monitor_boot_image_id     = "fd87j6d92jlrbjqbl32q"  # OS Image id (family_id: ubuntu-2204-lts, last_update: 2024-05-06, https://cloud.yandex.ru/ru/marketplace/products/yc/ubuntu-22-04-lts)
   vm_monitor_boot_image_descr  = "Ubuntu 22.04 LTS"      # boot-disk description (optional)
   vm_monitor_boot_disk_type    = "network-hdd"           # boot disk type (network-hdd | network-ssd)
   vm_monitor_boot_disk_size_gb = 20                      # boot disk size, GiB (not less then 8GiB for "Ubuntu 22.04")
@@ -61,7 +61,7 @@ locals {
   vm_master_isMayBeDisabled    = true                    # true|false
   vm_master_isConsoleEnabled   = 0                       # 0:disabled|1:enabled
   #
-  vm_master_boot_image_id      = "fd82vchjp2kdjiuam29k"  # OS Image id (family_id: ubuntu-2204-lts, last_update: 2024-04-22, https://cloud.yandex.ru/ru/marketplace/products/yc/ubuntu-22-04-lts)
+  vm_master_boot_image_id      = "fd87j6d92jlrbjqbl32q"  # OS Image id (family_id: ubuntu-2204-lts, last_update: 2024-05-06, https://cloud.yandex.ru/ru/marketplace/products/yc/ubuntu-22-04-lts)
   vm_master_boot_image_descr   = "Ubuntu 22.04 LTS"      # boot-disk description (optional)
   vm_master_boot_disk_type     = "network-hdd"           # boot disk type (network-hdd | network-ssd)
   vm_master_boot_disk_size_gb  = 40                      # boot disk size, GiB (not less then 8GiB for "Ubuntu 22.04") - 40GB for "minikube" k8s Cluster
@@ -82,7 +82,7 @@ locals {
   vm_worker_isMayBeDisabled    = true                    # true|false
   vm_worker_isConsoleEnabled   = 0                       # 0:disabled|1:enabled
   #
-  vm_worker_boot_image_id      = "fd82vchjp2kdjiuam29k"  # OS Image id (family_id: ubuntu-2204-lts, last_update: 2024-04-22, https://cloud.yandex.ru/ru/marketplace/products/yc/ubuntu-22-04-lts)
+  vm_worker_boot_image_id      = "fd87j6d92jlrbjqbl32q"  # OS Image id (family_id: ubuntu-2204-lts, last_update: 2024-05-06, https://cloud.yandex.ru/ru/marketplace/products/yc/ubuntu-22-04-lts)
   vm_worker_boot_image_descr   = "Ubuntu 22.04 LTS"      # boot-disk description (optional)
   vm_worker_boot_disk_type     = "network-hdd"           # boot disk type (network-hdd | network-ssd)
   vm_worker_boot_disk_size_gb  = 20                      # boot disk size, GiB (not less then 8GiB for "Ubuntu 22.04")

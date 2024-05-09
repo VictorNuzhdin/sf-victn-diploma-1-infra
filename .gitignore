@@ -6,3 +6,4 @@ terraform/configs/doesnt_work
 terraform/configs/cloud-init.yaml
 terraform/protected/cloud-init_instance-data.json
 terraform/protected/protected.tfvars
+terraform/setup/monitor/configs/srv__v4_cicd/user_profile/.config/gh

@@ -9,6 +9,7 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 * [GitHub | sf-victn-diploma-1-infra](https://github.com/VictorNuzhdin/sf-victn-diploma-1-infra)
 * [GitHub | sf-victn-diploma-2-cicd](https://github.com/VictorNuzhdin/sf-victn-diploma-2-cicd)
 * [GitHub | sf-victn-diploma-3-mon](https://github.com/VictorNuzhdin/sf-victn-diploma-3-mon)
+<!-- -->
 * [GitLab | sf-victn-diploma-0-app1](https://gitlab.com/VictorNuzhdin/sf-victn-diploma-0-app1)
 * [GitLab | sf-victn-diploma-1-infra](https://gitlab.com/VictorNuzhdin/sf-victn-diploma-1-infra)
 * [GitLab | sf-victn-diploma-2-cicd](https://gitlab.com/VictorNuzhdin/sf-victn-diploma-2-cicd)
@@ -63,6 +64,7 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 ```
 #project_status :: IN_PROGRESS
 
+2024-05-09_1653 :: stage03: DONE: подготовка к ci/cd - разработана конфигурация тестового деплоя на [srv] :: cicd ready 1
 2024-05-01_2037 :: stage02: DONE: IaC конфигурация дополнена - создается Kubernetes Кластер из x2 Нод
 2024-04-27_1613 :: stage01: DONE: реализована базовая IaC конфигурация создающая необходимые ВМ в облаке Yandex.Cloud
 2024-04-26_1353 :: stage00: DONE: создан пустой репозиторий
@@ -73,13 +75,154 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 
 ### =Changes Details : : Описание изменений (новые в начале)
 
-<!--START_DETAILS_20-->
-<details open><summary><h3><b>Стадия #2: Создание Kubernetes Кластера</b></h3></summary>
+<!--START_DETAILS_30-->
+<details open><summary><h3><b>Стадия #3: Реализация деплоя веб-приложения на [srv]</b></h3></summary>
 
 ```bash
 
+#--ВВЕДЕНИЕ
+#
+#..инструкции по начальному развертыванию см. вразделе начиная с "Стадия #1: Развертывание базовой облачной Инфраструктуры"
+#  в даном разделе будут приведены инструкции по запуску сервера мониториннга [srv1] 
+#  с равернутым в тестовом режиме Docker Compose стеком веб-приложения на базе Python Django.
+#
+#..на данной Стадии подразумевается что все предыдущие шаги уже выполнены и протестированы.
+#  производится запуск и проверка работы контейнеризированного веб приложенния на сервере [srv], 
+#  поэтому в целях экономии времени разварачивать всю инфраструктуру не нужно
+#  и достаточно развернуть только виртуальную сеть и сервер [srv]
+#  для чего будет использовать созданные шелл-скрипты
+#
+#..перед применением Terraform конфигурации рекомендуется выполнить скрипт обновляюший IAM-токен доступа к облаку
+#  "project_ycTokenChange.sh"
+#
+#..если в процессе применения конфигурации возникают ошибки связанные с отсутствием устанавливаемых пакетов
+#  необходимо обновить идентификатор образа "Ubuntu 22.04 LTS" из репозитория "Yandex Cloud Marketplace"
+#  https://yandex.cloud/en-ru/marketplace/products/yc/ubuntu-22-04-lts
+#  и указать его в переменной "vm_monitor_boot_image_id" Файла "locals.tf"
+
+
+#--ПРИМЕНЕНИЕ конфигурации
+
+$ ./project_ycTokenChange.sh
+$ ./project_tfDeployNetwork.sh
+
+        Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+$ ./project_tfDeployMonitor.sh
+
+        Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+
+        Outputs:
+
+        monitor_external_ip = "158.160.68.200"
+
+
+#--ПРОВЕРКА результата
+#  *через некоторое время после применения terraform конфигурации станет доступен веб-сайт сервера
+#   на домашней странице которого можно будет выбрать переход на один из развернутых веб-сервисов Docker Compose стека
+#  *стек состоит из 3х сервисов, но доступны извне только 2 из них:
+#    1. сервис СУБД PostreSQL
+#    2. сервис веб-интерфейса для работы с базами данных СУБД PostreSQL
+#    3. сервис веб-приложения на стеке Python Django которое работает с БД размещенной на СУБД PostreSQL
+#   *сервисы 2,3 доступны извне через Nginx reverse proxy конфигурацию
+
+# Корневой раздел сайта сервера [srv]
+https://srv.dotspace.ru/
+
+        Welcome to [srv.dotspace.ru] (Monitoring and CI/CD tasks)
+        ---
+        *quick_linx
+        0. https://dotspace.ru
+           *root domain
+        1. My Python Django Webapp with PostgreSQL DB
+           *internal dockerized service #1
+        2. PostgreSQL Administrator (pgAdmin)
+           *internal dockerized service #2
+
+# Результат перехода по ссылке [2] - веб-интейрейс для управления СУБД PostgreSQL
+https://srv.dotspace.ru/apps/pg-admin/login?next=/apps/pg-admin/
+
+        pgAdmin | Login
+
+            Username: 
+            Password: 
+
+# Результат перехода по ссылке [1] - веб-приложение на стеке Python Django
+https://srv.dotspace.ru/apps/pg-admin/login?next=/apps/pg-admin/
+
+        Hello Words :: Home
+
+        BLR | CHN | DEU | ENG | ESP | FRA | ITA | JPN | KOR | RUS | UKR | ALL | BONUS
+
+        Webapp version: 2024.0508.214758
+        Webapp time...: 2024-05-09 15:35:23
+
+# Результат перехода по ссылке [ENG] - приветствие на английском языке
+https://srv.dotspace.ru/apps/pg-django-greetings//hello/ENG/
+
+        hello
+
+# Результат перехода по ссылке [ALL] - список всех языков и приветствий
+https://srv.dotspace.ru/apps/pg-django-greetings//hello/
+
+        Hello Words :: All records
+        --
+        id  Lang  Word
+        --  --    --
+         1  ENG  hello
+         2  FRA  bonjour
+         3  ESP  hola
+         4  ITA  ciao
+         5  DEU  hallo
+         6  UKR  вітаю
+         7  BLR  прывітанне
+         8  RUS  привет
+         9  JPN  こんにちは
+        10  CHN  你好
+        11  KOR  안녕하세요
+
+#  (i)  если при переходе на один из разделов возникает ошибка Django
+#       либо на странице нет данных и список языков пуст
+#       значит при развертывании стека возникли какието проблемы
+#       краткая диагностика проблем описана в связанном репозитории проекта веб-приложения
+#       sf-victn-diploma-0-app1 | Веб-приложение Python Django PostgreSQL Docker Compose
+#       https://github.com/VictorNuzhdin/sf-victn-diploma-0-app1
+
+
+#--УНИЧТОЖЕНИЕ ресурсов
+
+$ ./project_tfUndeployAll.sh
+
+
+#--ЗАКЛЮЧЕНИЕ
+#
+#  - в результате реализации данного Этапа (stage03: cicd ready 1)
+#    была разработана конфигурация дополнительной настройки сервера мониоринга [srv1]
+#    для развертывания на нем в тестовом режиме Docker Compose стека веб-приложения
+#    содержащего 3 сервиса:
+#    1. сервис СУБД PostgreSQL
+#    2. сервис GUI для СУБД PostgreSQL
+#    3. сервис веб-приложения Python Django работающего с БД размещенной в СУБД PostgreSQL
+#
+#  - сервис 1 условно не доступен извне,
+#    сервисы 2,3 доступны извне через конфигурацию обратного проксирования Nginx (reverse proxy)
+#
+
+```
+
+</details>
+<!--END_DETAILS_30-->
+<br>
+
+<!--START_DETAILS_20-->
+<details><summary><h3><b>Стадия #2: Создание Kubernetes Кластера</b></h3></summary>
+
+```bash
+
+#--ВВЕДЕНИЕ
+
 #..инструкции по начальному развертыванию см. вразделе "Стадия #1: Развертывание базовой облачной Инфраструктуры"
-#  в даном разделе будут приведены инструкции по проверке Кластера Kubernetes
+#  в даном разделе будут приведены инструкции по проверке Кластера Kubernetes.
 #  на данной Стадии описание начинается с момента применения Terraform конфигурации
 
 #..применяем Terraform конфигурацию с помощью шелл-скрипта
@@ -89,6 +232,9 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 #   то необходимо учичтожить ресурсы и повторить развертывания заново
 #   т.к в некоторых случаях изза проблем в сети могут наблюдаться сбои 
 #   при установке пакетов необходимых для запуска и работы кластера
+
+
+#--ВЫПОЛНЕНИЕ
 
 $ ./project_tfDeployAll.sh
     ..
@@ -242,21 +388,24 @@ chrome: https://srv.dotspace.ru/
         1. Example HelloEmptyWorld Webapp
            *internal dockerized service #1
 
-# (i) на этом Стадия #2 настройки Kubernetes Кластера завершена
-#     *созданные на предыдущей Стадии ВМ "k8s-master-0" (master) и "k8s-worker-0" (app)
-#      объединены в один Kubernetes Кластер, при этом
-#      ВМ "k8s-master0" (master0) является управляющей "Control Plane" Нодой, а
-#      ВМ "k8s-worker0" (app0)    является управляемой "Worker" Нодой
+
+#--ЗАКЛЮЧЕНИЕ
 #
-# (i) на следующей Стадии будет производиться подготовка контейнеризированного Python веб-приложения
-#     для развертывания в созданном Kubernetes Кластере
+#  - на этом Стадия #2 настройки Kubernetes Кластера завершена
+#  - созданные на предыдущей Стадии ВМ "k8s-master-0" (master) и "k8s-worker-0" (app)
+#    объединены в один Kubernetes Кластер, при этом
+#    * ВМ "k8s-master0" (master0) является управляющей "Control Plane" Нодой, а
+#    * ВМ "k8s-worker0" (app0)    является управляемой "Worker" Нодой
+#
+#  - на следующей Стадии будет производиться подготовка контейнеризированного Python веб-приложения
+#    для развертывания в созданном Kubernetes Кластере
 
 
 ```
 
 </details>
 <!--END_DETAILS_20-->
-<br><br>
+<br>
 
 
 <!--START_DETAILS_10-->
@@ -264,6 +413,8 @@ chrome: https://srv.dotspace.ru/
 
 ```bash
 
+#--ВВЕДЕНИЕ
+#
 #..формируем конфигурацию с секретами необходимыми для авторизации в облаке
 #  *примеры конфигурация размещены в "terraform/protected_examples"
 #  *необходимо скопировать каталог "protected_examples" и переименовать его в "protected",
@@ -279,6 +430,9 @@ $ yc iam create-token
 
         t1.9eue..AROAA..332_символа
 
+
+#--ВЫПОЛНЕНИЕ
+#
 #..выполняем скрипт который считает текущий IAM токен из профиля "Yandex CLI"
 #  и подставит его в конфигурацию секретов "terrafrom/protected/protected.tfvars" в поле "yc_token"
 #  а также обновит поле "yc_token_ts" со штампом времени создания токена (для удобства контроля его валидности по времени)
@@ -395,31 +549,57 @@ $ ./project_tfUndeploy.sh
 
         Destroy complete! Resources: 8 destroyed.
 
-# (i) на этом Стадия #1 настройки Kubernetes Кластера завершена
-#     *созданы необходимые виртуальные машины в облаке
-#     *проверено ssh подключение к ним
-#     *проверен публичный доступ по к серверу мониторинга "srv" по URL:
-#      https://srv.dotspace.ru
-
-# (i) на следующей Стадии будет производиться непосредственно создание Kubernetes Кластера,
-#     а именно объединение ВМ "master" и "app" в Кластер,
-#     где ВМ "master" (k8s-master-0) будет иметь Роль "Control Plane" Ноды,
-#     а ВМ "app" (k8s-worker-0) будет иметь Роль "Worker" Ноды
+#--ЗАКЛЮЧЕНИЕ
+#
+#  - на этом Стадия #1 настройки Kubernetes Кластера завершена
+#  - созданы необходимые виртуальные машины в облаке
+#  - проверено ssh подключение к ним
+#  - проверен публичный доступ по к серверу мониторинга "srv" по URL:
+#    https://srv.dotspace.ru
+#
+#  - на следующей Стадии будет производиться непосредственно создание Kubernetes Кластера,
+#    а именно объединение ВМ "master" и "app" в Кластер,
+#    где ВМ "master" (k8s-master-0) будет иметь Роль "Control Plane" Ноды,
+#    а ВМ "app" (k8s-worker-0) будет иметь Роль "Worker" Ноды
 
 
 ```
 
 </details>
-<!--END_DETAILS_30-->
+<!--END_DETAILS_10-->
 <br><br>
 
 
 ### =Screenshots : : Скриншоты (новые в начале)
 
+<!--START_SCREENS_30-->
+<details open><summary><h3><b>Состояние инфраструктуры на Этапе #3 : : Веб-приложение на ВМ [srv]</b></h3></summary>
+* на хосте "srv" в тестовом режиме развернут стек веб-приложения Python Django PostgreSQL <br>
+* домашняя страница сайта сервера <br>
+* разделы веб-приложения <br>
+* веб-интерфейс для СУБД PostgreSQL (pgAdmin) <br>
+* база данных, таблица и данные в СУБД PostgreSQL через pgAdmin <br>
+<br>
+
+![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_1_homePage.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_2_webapp_1.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_3_webapp_2.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_4_webapp_3.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_5_pgAdmin_1.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_6_pgAdmin_2_db_table.png?raw=true)
+
+</details>
+<!--END_SCREENS_30-->
+<br>
+
 <!--START_SCREENS_20-->
-<details open><summary><h3><b>Состояние инфраструктуры на Этапе #2 : : Kubernetes Кластер</b></h3></summary>
+<details><summary><h3><b>Состояние инфраструктуры на Этапе #2 : : Kubernetes Кластер</b></h3></summary>
 * k8s кластер инициалирован на хосте "master0", добавлена x1 worker нода "app0" <br>
-* система мониторинга на "srv" еще не настроена <br>
 <br>
 
 ![screen](_screens/k8s-cluster__sprint1-infra__stage02__01_vm-master-master0-console-check.png?raw=true)

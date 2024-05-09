@@ -24,9 +24,9 @@ echo "" >> $LOG_PATH
 
 ##..installing_packages
 #sudo apt install -y python3                     ## Python 3.10+ is already exists in new Ubuntu 22.04 Cloud Images (from 2023.08.28 and newest)
-sudo apt install -y whois
-sudo apt install -y mc
-sudo apt install -y tree
+sudo apt-get install -y whois
+sudo apt-get install -y mc
+sudo apt-get install -y tree
 
 
 #..debug_logging
