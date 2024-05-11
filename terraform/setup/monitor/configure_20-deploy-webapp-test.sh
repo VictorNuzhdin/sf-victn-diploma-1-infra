@@ -29,12 +29,13 @@ echo "" >> $LOG_PATH
 echo "" >> $LOG_PATH
 
 
-##..creating project directory && cloning github repo
+##..creating project directory && cloning github repo && fixing permissions
 #
 mkdir -p /home/$SYSTEM_USER_LOGIN/projects
 cd /home/$SYSTEM_USER_LOGIN/projects
 git clone $APP_REPO_HTTPS_URL
-
+#
+chown -R $SYSTEM_USER_LOGIN:$SYSTEM_USER_LOGIN $APP_REPO_NAME
 
 ##..running webapp
 #

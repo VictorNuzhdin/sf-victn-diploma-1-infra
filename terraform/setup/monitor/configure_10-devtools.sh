@@ -157,44 +157,44 @@ echo "" >> $LOG_PATH
 gh auth status
 gh auth status >> $LOG_PATH
 #
-docker stop $(docker ps -aq)
-docker rm -vf $(docker ps -aq)
-docker rmi -f $(docker images -aq)
-docker container prune --force
+#docker stop $(docker ps -aq)
+#docker rm -vf $(docker ps -aq)
+#docker rmi -f $(docker images -aq)
+#docker container prune --force
 #
-docker pull hello-world
-docker images
-docker images >> $LOG_PATH
+#docker pull hello-world
+#docker images
+#docker images >> $LOG_PATH
 #
 #         REPOSITORY    TAG       IMAGE ID       CREATED         SIZE
 #         hello-world   latest    d2c94e258dcb   12 months ago   13.3kB
 #
 #echo $(date +'%Y.%m%d.%H%M%S')		## 2024.0502.171441
 #
-echo "" >> $LOG_PATH
-docker tag hello-world:latest dotspace2019/hello-world:$(date +'%Y.%m%d.%H%M%S')
-docker tag dotspace2019/hello-world:$(date +'%Y.%m%d.%H%M%S') dotspace2019/hello-world:latest
+#echo "" >> $LOG_PATH
+#docker tag hello-world:latest dotspace2019/hello-world:$(date +'%Y.%m%d.%H%M%S')
+#docker tag dotspace2019/hello-world:$(date +'%Y.%m%d.%H%M%S') dotspace2019/hello-world:latest
 #
-docker images
-docker images >> $LOG_PATH
+#docker images
+#docker images >> $LOG_PATH
 #
 #         REPOSITORY                 TAG                IMAGE ID       CREATED         SIZE
 #         dotspace2019/hello-world   2024.0502.172150   d2c94e258dcb   12 months ago   13.3kB
 #         dotspace2019/hello-world   latest             d2c94e258dcb   12 months ago   13.3kB
 #         hello-world                latest             d2c94e258dcb   12 months ago   13.3kB
 #
-docker push dotspace2019/hello-world:$(date +'%Y.%m%d.%H%M%S') && docker push dotspace2019/hello-world:latest
+#docker push dotspace2019/hello-world:$(date +'%Y.%m%d.%H%M%S') && docker push dotspace2019/hello-world:latest
 #
 #https://hub.docker.com/repository/docker/dotspace2019/hello-world/general
 #- изменения пришли
 #
-docker stop $(docker ps -aq)
-docker rm -vf $(docker ps -aq)
-docker rmi -f $(docker images -aq)
+#docker stop $(docker ps -aq)
+#docker rm -vf $(docker ps -aq)
+#docker rmi -f $(docker images -aq)
 #
-echo "" >> $LOG_PATH
-docker run dotspace2019/hello-world:latest | grep Hello
-docker run dotspace2019/hello-world:latest | grep Hello >> $LOG_PATH
+#echo "" >> $LOG_PATH
+#docker run dotspace2019/hello-world:latest | grep Hello
+#docker run dotspace2019/hello-world:latest | grep Hello >> $LOG_PATH
 #
 #         Hello from Docker!
 #
