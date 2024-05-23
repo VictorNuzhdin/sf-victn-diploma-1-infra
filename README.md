@@ -59,7 +59,7 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 <br>
 
 
-### =Change log : : История изменений (новые в начале)
+### =Change log | История изменений (новые в начале)
 
 ```
 #project_status :: IN_PROGRESS
@@ -74,10 +74,167 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 <br>
 
 
-### =Changes Details : : Описание изменений (новые в начале)
+### =Changes Details | Описание изменений (новые в начале)
 
-<!--START_DETAILS_30-->
-<details open><summary><h3><b>Стадия #3: Реализация деплоя веб-приложения на [srv]</b></h3></summary>
+<!--START_DETAILS_30_2-->
+<details open><summary><h3><b>Стадия #3: CI/CD средствами GitHub и деплой на [srv]</b></h3></summary>
+
+```bash
+
+#--ВВЕДЕНИЕ
+
+#..в описании ниже будет продемонстрирована работа в двух связанных проектах/репозиториях
+#  *для связанного проекта "sf-victn-diploma-0-app1" описание будет сокращено (полную версию см. в README проекта)
+#
+#  1. инфраструктурный проект "sf-victn-diploma-1-infra" создающий необходимые облачные ресурсы (сеть и ВМ [srv])
+#     https://github.com/VictorNuzhdin/sf-victn-diploma-1-infra
+#   
+#  2. текущий проект "sf-victn-diploma-0-app1" веб-приложения которое будет развернуто на ВМ [srv] в качестве теста развертывания
+#     https://github.com/VictorNuzhdin/sf-victn-diploma-0-app1
+#
+
+
+#--ВЫПОЛНЕНИЕ
+
+#..в проекте "sf-victn-diploma-1-infra"
+#  *проверяем в каком каталоге находимся
+#  *выпускаем новый IAM-токен для авторизации Terraform в Облаке Yandex.Cloud
+#  *уничтожаем текущие ресурсы для последующего чистого теста
+
+$ pwd                               ## /home/devops/github/sf-victn-diploma-1-infra
+$ ./project_ycTokenChange.sh
+$ ./project_tfUndeployAll.sh        ## Destroy complete! Resources: 4 destroyed.
+
+
+#..в проекте "sf-victn-diploma-0-app1"
+#  *проверяем в каком каталоге находимся
+#  *в шелл-скрипте который производит тестовые изменения меням значение тега версии на +1
+#  *выполняем скрипт внесения тестовых изменений в код
+#   - в файл "./app/webapp/APP_VERSION" (отображается на главной странице веб-приложения) будет записана текущая версия
+#   - в файл "./_logs/fake.log" будет записано некоторое сообщение для эмитации логирования
+#   - эти изменения будут добавлены в коммит с тегом версии и отправлены в GitHub репозиторий (что запустит CI/CD)
+
+$ pwd                                   ## /home/devops/github/sf-victn-diploma-0-app1
+
+$ nano project_makePublishChanges.sh    ## RELEASE_VERSION="0.0.3"
+
+$ ./project_makePublishChanges.sh
+        ..
+            On branch main
+            Your branch is up to date with 'origin/main'.
+
+            nothing to commit, working tree clean
+
+#       (+) все отработало как ожидалось:
+#           - изменения успешно ушли в GitHub
+
+
+#..в GitHub репозитории проекта "sf-victn-diploma-0-app1"
+#  * проверяем приход изменений
+#  * проверяем текущую версию GitHub Релиза кода веб-приложения
+
+https://github.com/VictorNuzhdin/sf-victn-diploma-0-app1
+    - видно что последний релиз: v0.0.3
+
+#    (+) все отработало как ожидалось:
+#        - ошибок при выполнении "GitHub Actions Workflow" нет
+#        - релиз на основе указанной в скрипте версии создан
+#        - docker образ создан и отправлен в DockerHub репозиторий (далее будет проверка)
+
+
+#..в DockerHub репозитории
+#  *проверяем Образы в репозитори, теги версий и дату последнего изменения
+
+https://hub.docker.com/repository/docker/dotspace2019/nve-diploma-webapp/tags
+				
+            latest      Digest: bff6c9643944    Last pull: 2024.05.22 13:53
+            0.0.3       Digest: bff6c9643944    Last pull: 2024.05.22 13:53
+
+#    (+) все отработало как ожидалось:
+#        - в репозитории DockerHub созданы актуальные версии Docker Образов
+
+
+#..в проекте "sf-victn-diploma-1-infra"
+#  *проверяем в каком каталоге находимся
+#  *выпускаем новый IAM-токен для авторизации Terraform в Облаке Yandex.Cloud
+#  *выполняем шелл-скрипты которые в Облаке Yandex.Cloud создают виртуальную сеть, подсеть и ВМ [srv]
+
+$ pwd                               ## /home/devops/github/sf-victn-diploma-1-infra
+$ ./project_ycTokenChange.sh
+$ ./project_tfDeployNetwork.sh      ## Apply complete! Resources: 2 added, 0 changed, 0 destroyed.
+$ ./project_tfDeployMonitor.sh      ## Apply complete! Resources: 2 added, 0 changed, 0 destroyed. | Outputs: monitor_external_ip = "158.160.85.78"
+
+
+#..проверяем результат
+#  *проверяем работу основной страницы Nginx веб-сайта на сервере [srv]
+#  *проверяем работу основной страницы Python Django веб-приложения на сервере [srv]
+
+https://srv.dotspace.ru/
+
+            Welcome to [srv.dotspace.ru] (Monitoring and CI/CD tasks)
+            ---
+            *quick_linx
+             0. https://dotspace.ru
+                *root domain
+             1. My Python Django Webapp with PostgreSQL DB
+                *internal dockerized service #1
+             2. PostgreSQL Administrator (pgAdmin)
+                *internal dockerized service #2
+
+https://srv.dotspace.ru/
+>My Python Django Webapp with PostgreSQL DB
+ https://srv.dotspace.ru/apps/pg-django-greetings/
+
+            Hello Words :: Home
+            --
+            BLR | CHN | DEU | ENG | ESP | FRA | ITA | JPN | KOR | RUS | UKR | ALL | BONUS
+            --
+            Webapp version: [2024-05-22T13:47:39+06] :: step02: release 0.0.3
+            Webapp time...: 2024-05-22 15:46:31
+
+#        (+) все отработало как ожидалось:
+#            - ВМ [srv] успешно создана и домашняя страница ее веб-сайта доступна по HTTPS протоколу
+#            - при создании [srv] успешно развернут "Docker Compose" Стек запускающий контейнеризированное Python Django веб-приложение
+#              которое работает с БД под управлением СУБД PostgreSQL развернутого также с помощью этого стека
+
+
+#--ЗАКЛЮЧЕНИЕ
+
+#  (i) на этом Стадия #3 (часть2) разработки CI/CD конфигурации завершена, в результате чего выполнено
+#      *разработана и протестирована CI/CD конфигурация деплоя веб-приложения на сервере [srv] средствами предоставляемыми "GitHub Actions"
+#      *веб-приложение разворачивеатся из актуальной/последней (latest) версии Docker Образа размещенного в репозитории DockerHub
+#      *развертывание производится однократно при первичном создании ВМ [srv]
+#      *полное описание см. в связанном проекте
+#
+#      *а именно, в облаке "Yandex.Cloud", с помощью Terraform IaC конфигурации создается ВМ [srv] на которой:
+#       1. развернут HTTPS веб-сайт с домашней страницей для удобства перехода на веб-приложения сервера
+#       2. с помощью "Docker Compose" развернуто контейнеризированное Python Django веб-приложение 
+#          Образы для которого скачивались непосредственно с персонального DockerHub репозитория
+#
+#      *основная страница веб-сайта сервера [srv] доступна по URL
+#       https://srv.dotspace.ru/
+#
+#      *основная страница веб-приложения развернутого на сервере [srv] доступна по URL
+#       https://srv.dotspace.ru/apps/pg-django-greetings/
+#
+#      *страница авторизации веб-приложения "pgAdmin" для работы с БД PostgreSQL на сервере [srv] доступна по URL
+#       https://srv.dotspace.ru/apps/pg-admin/
+
+# (i) на последующих Стадиях планируется к реализации:
+#     - разработатка эквивалентную CI/CD конфигурацию средствами GitLab,
+#       которая по приходу в репозиторий кода с тегом версии будет также выполнять сборку и публикацию Docker Образа в DockerHub Репозиторий,
+#       но автоматически развертывать его уже в Kubernetes Кластере,
+#       который создается в текущем проекте "sf-victn-diploma-1-infra"
+#
+
+```
+
+</details>
+<!--END_DETAILS_30_2-->
+
+
+<!--START_DETAILS_30_1-->
+<details><summary><h3><b>Стадия #3: Ручной деплой веб-приложения на [srv]</b></h3></summary>
 
 ```bash
 
@@ -218,7 +375,7 @@ $ ./project_tfUndeployAll.sh
 ```
 
 </details>
-<!--END_DETAILS_30-->
+<!--END_DETAILS_30_1-->
 
 
 <!--START_DETAILS_20-->
@@ -576,10 +733,30 @@ $ ./project_tfUndeploy.sh
 <br>
 
 
-### =Screenshots : : Скриншоты (новые в начале)
+### =SCREENSHOTS | Снимки экрана / Иллюстрации
 
-<!--START_SCREENS_30-->
-<details open><summary><h3><b>Состояние инфраструктуры на Этапе #3 : : Веб-приложение на ВМ [srv]</b></h3></summary>
+<!--START_SCREENS_30_2-->
+<details open><summary><h3><b>Стадия #3: CI/CD средствами GitHub и деплой на [srv]</b></h3></summary>
+* 1. в репозитории GitHub виден новый релиз v0.0.2 <br>
+* 2. в репозитории DockerHub появились новые сборки/теги Образов (latest и 0.0.2) <br>
+* 3. демонстрация работы веб-приложения после развертывания из Образа на ВМ "srv" (версии 0.0.2, 0.0.3) <br><br>
+
+![screen](_screens/k8s-cluster__sprint2-cicd__stage03__webapp_6_01.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint2-cicd__stage03__webapp_6_02.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint2-cicd__stage03__webapp_7_01.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint2-cicd__stage03__webapp_8_01.png?raw=true)
+<br>
+![screen](_screens/k8s-cluster__sprint2-cicd__stage03__webapp_8_02.png?raw=true)
+
+</details>
+<!--END_SCREENS_30_2-->
+<br>
+
+<!--START_SCREENS_30_1-->
+<details><summary><h3><b>Стадия #3: Ручной деплой веб-приложения на [srv]</b></h3></summary>
 * на хосте "srv" в тестовом режиме развернут стек веб-приложения Python Django PostgreSQL <br>
 * домашняя страница сайта сервера <br>
 * разделы веб-приложения <br>
@@ -600,11 +777,11 @@ $ ./project_tfUndeploy.sh
 ![screen](_screens/k8s-cluster__sprint1-infra__stage03__srv_6_pgAdmin_2_db_table.png?raw=true)
 
 </details>
-<!--END_SCREENS_30-->
+<!--END_SCREENS_30_1-->
 <br>
 
 <!--START_SCREENS_20-->
-<details><summary><h3><b>Состояние инфраструктуры на Этапе #2 : : Kubernetes Кластер</b></h3></summary>
+<details><summary><h3><b>Стадия #2: Kubernetes Кластер</b></h3></summary>
 * k8s кластер инициалирован на хосте "master0", добавлена x1 worker нода "app0" <br>
 <br>
 
@@ -617,7 +794,7 @@ $ ./project_tfUndeploy.sh
 <br>
 
 <!--START_SCREENS_10-->
-<details><summary><h3><b>Состояние инфраструктуры на Этапе #1 : : Базовые облачные ресурсы</b></h3></summary>
+<details><summary><h3><b>Стадия #1: Базовые облачные ресурсы</b></h3></summary>
 * k8s кластер еще не инициалирован <br>
 * система мониторинга на "srv" еще не настроена <br>
 * результат выполнения "terraform apply" <br>
