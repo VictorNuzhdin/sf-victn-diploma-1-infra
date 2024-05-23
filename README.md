@@ -64,7 +64,8 @@ Skill Factory Diploma Project - Stage1 :: Core Cloud Infrastructure
 ```
 #project_status :: IN_PROGRESS
 
-2024-05-09_1653 :: stage03: DONE: подготовка к ci/cd - разработана конфигурация тестового деплоя на [srv] :: cicd ready 1
+2024-05-23_1403 :: stage03: DONE: разработана ci/cd конфигурация тестового деплоя на [srv] :: cicd ready 2
+2024-05-09_1653 :: stage03: DONE: разработана ci/cd конфигурация тестового деплоя на [srv] :: cicd ready 1
 2024-05-01_2037 :: stage02: DONE: IaC конфигурация дополнена - создается Kubernetes Кластер из x2 Нод
 2024-04-27_1613 :: stage01: DONE: реализована базовая IaC конфигурация создающая необходимые ВМ в облаке Yandex.Cloud
 2024-04-26_1353 :: stage00: DONE: создан пустой репозиторий
