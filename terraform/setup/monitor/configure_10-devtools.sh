@@ -20,6 +20,13 @@ echo "" >> $LOG_PATH
 echo "" >> $LOG_PATH
 
 
+##..DISABLING_OS_KERNEL_UPGRADE_TO_PREVENT_INTERACTIVE_PSEUDO_UI_FOR_SERVER_RESTART_WHEN_PACKAGES_INSTALLS..
+##  https://askubuntu.com/questions/938494/how-to-i-prevent-ubuntu-from-kernel-version-upgrade-and-notification
+#
+#uname -r                                        ## 5.15.0-105-generic
+sudo apt-mark hold $(uname -r)
+
+
 ##..disable interactive prompt for restart services when apt-get upgrade
 #
 export DEBIAN_FRONTEND=noninteractive
@@ -27,9 +34,9 @@ sudo bash -c 'echo "nrconf" > /etc/needrestart/conf.d/90-autorestart.conf'
 sudo sed -i "/nrconf/s/.*/\$nrconf{restart} = 'a';/" /etc/needrestart/conf.d/90-autorestart.conf
 
 
-##..updating package database
+##..updating package database ::  DISABLED
 #
-sudo apt-get update
+#sudo apt-get update
 #sudo DEBIAN_FRONTEND="$DEBIAN_FRONTEND" apt-get upgrade -y         # ОТКЛЮЧЕНО :: слишком медленно происходит обновление
 #sudo apt-get upgrade -y                                            # Need to get 113 MB of archives.. т.е это будет долго (минут 5 и потом будет интерактивное окно и нужна перезагрузка)
 #sudo apt-get -y autoremove >> $LOG_PATH                            # After this operation, 596 MB disk space will be freed.

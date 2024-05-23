@@ -14,6 +14,13 @@ echo "--------------------------------------------------------------------------
 echo "" >> $LOG_PATH
 
 
+echo '## DISABLING_OS_KERNEL_UPGRADE_TO_PREVENT_INTERACTIVE_PSEUDO_UI_FOR_SERVER_RESTART_WHEN_PACKAGES_INSTALLS..' >> $LOG_PATH
+##       https://askubuntu.com/questions/938494/how-to-i-prevent-ubuntu-from-kernel-version-upgrade-and-notification
+#
+#uname -r                                        ## 5.15.0-105-generic
+sudo apt-mark hold $(uname -r)
+
+
 echo '## Updating local apt packages database..' >> $LOG_PATH
 sudo apt update -y
 sleep 30
